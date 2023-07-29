@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: ap-south-1 
   ECR_REPO: ${{ secrets.ECR_REPO }} 
-  IMAGE_TAG: $GITHUB_RUN_NUMBER 
+  IMAGE_TAG: ${GITHUB_RUN_NUMBER} 
 
 jobs:
   build-and-push:
@@ -25,6 +25,8 @@ jobs:
           registry: ${{ secrets.reg }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          skip-logout: false
+          registry-type: public 
 
       - name: Build and tag Docker image
         run: docker build -t ${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} .

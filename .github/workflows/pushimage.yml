@@ -6,7 +6,7 @@ on:
       - master 
 
 env:
-  AWS_REGION: ap-south-1 
+  AWS_REGION: us-east-1 
   ECR_REPO: ${{ secrets.ECR_REPO }} 
   IMAGE_TAG: ${{ github.run_number }} 
 

@@ -15,17 +15,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Login to AWS ECR
-        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ {{ secrets.reg }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and tag Docker image
-        run: docker build -t ${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} .
+        run: docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} .
 
-      - name: Tag the image with ECR registry URL
-        run: docker tag ${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} ${{ secrets.reg }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
 
       - name: Push Docker image to ECR
-        run: docker push ${{ secrets.reg }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
